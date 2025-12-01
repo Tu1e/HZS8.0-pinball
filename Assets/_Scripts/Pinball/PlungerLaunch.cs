@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 
 public class PlungerScript : MonoBehaviour
 {
@@ -8,8 +9,10 @@ public class PlungerScript : MonoBehaviour
 
     private Rigidbody2D rb;
     private Vector3 startPozicija;
-    private float trenutnoPovlacenje = 0f;
+    [SerializeField] float trenutnoPovlacenje = 0f;
     private GameObject loptica = null;
+
+    [SerializeField] Slider slider;
 
     void Start()
     {
@@ -24,6 +27,7 @@ public class PlungerScript : MonoBehaviour
         {
             trenutnoPovlacenje += brzinaPovlacenja * Time.deltaTime;
             trenutnoPovlacenje = Mathf.Clamp(trenutnoPovlacenje, 0, maxPovlacenje);
+            slider.value = trenutnoPovlacenje * 5f;
         }
 
         // 2. Lansiranje
@@ -50,8 +54,10 @@ public class PlungerScript : MonoBehaviour
             // C. Lansiramo
             float procenatSnage = trenutnoPovlacenje / maxPovlacenje;
             ballRb.AddForce(Vector2.up * snagaLansiranja * procenatSnage, ForceMode2D.Impulse);
+
         }
 
+        slider.value = 0f;
         trenutnoPovlacenje = 0f;
         loptica = null;
     }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,6 +13,9 @@ public class GameManager : MonoBehaviour
     private GameObject currentBall;
     public AudioClip gameOver;
     private int lives;
+
+    public static event Action OnGameOver;
+    public static event Action OnBallUsed;
 
     void Start()
     {
@@ -28,6 +32,9 @@ public class GameManager : MonoBehaviour
             {
                 AudioSource.PlayClipAtPoint(gameOver, Camera.main.transform.position);
             }
+
+            OnBallUsed?.Invoke();
+            OnGameOver?.Invoke();
             Debug.Log("GAME OVER! Nema više života.");
             return;
         }
@@ -36,6 +43,7 @@ public class GameManager : MonoBehaviour
         {
             currentBall = Instantiate(ballPrefab, respawnPosition.position, Quaternion.identity);
             currentBall.tag = "Pinball";
+
         }
         else
         {
@@ -59,6 +67,8 @@ public class GameManager : MonoBehaviour
         {
             stopperSensor.ResetSensor();
         }
+            if (lives < 3)
+                OnBallUsed?.Invoke();
 
         Debug.Log("Loptica respawnana. Životi preostali: " + lives);
     }
@@ -73,6 +83,9 @@ public class GameManager : MonoBehaviour
         else if (lives <= 0)
         {
             Debug.Log("GAME OVER! (Konačna provera)");
+
+            OnBallUsed?.Invoke();
+            OnGameOver?.Invoke();
         }
     }
 }
