@@ -8,9 +8,15 @@ public class FlipperController : MonoBehaviour
     [Header("Flipper Settings")]
     public float flipperSpeed = 4000f; // Brzina trzaja
     public float flipperStrength = 10000f; // Snaga motora (Max Motor Torque)
-
+    
+    [Header("Audio Settings")]
+    public AudioClip hitSound;
+    [Range(0f, 1f)]
+    public float soundVolume = 1f;
+    
     private HingeJoint2D hinge;
     private JointMotor2D motor;
+    private bool wasActiveLastFrame = false; // Prati da li je bio aktivan prethodni frame
 
     void Start()
     {
@@ -38,6 +44,14 @@ public class FlipperController : MonoBehaviour
 
     void SetFlipperActive(bool isActive)
     {
+        // Pusti zvuk SAMO kada prelazimo iz neaktivnog u aktivno stanje
+        if (isActive && !wasActiveLastFrame)
+        {
+            AudioHelper.Play2DSound(hitSound, soundVolume);
+        }
+        
+        wasActiveLastFrame = isActive;
+
         // Ako je aktivno, brzina je pozitivna, inace negativna
         motor.motorSpeed = isActive ? flipperSpeed : -flipperSpeed;
         hinge.motor = motor;
