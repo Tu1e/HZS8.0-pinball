@@ -2762,6 +2762,7 @@ GameObject:
   - component: {fileID: 1078926877}
   - component: {fileID: 1078926876}
   - component: {fileID: 1078926879}
+  - component: {fileID: 1078926880}
   m_Layer: 0
   m_Name: Booster
   m_TagString: Untagged
@@ -2923,6 +2924,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Booster
   boostForce: 12000
+--- !u!114 &1078926880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1078926874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4de0c2f22a500524eabfffb5c45d592c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoringObject
+  points: 30
+  flashColor: {r: 0.9921569, g: 0.9607844, b: 0.9019608, a: 1}
+  popScale: 1.2
+  effectDuration: 0.2
+  hitSound: {fileID: 8300000, guid: e7afd2ef3fee29049a53165f36cb6c55, type: 3}
+  soundVolume: 1
 --- !u!1 &1164487102
 GameObject:
   m_ObjectHideFlags: 0
@@ -3698,6 +3717,7 @@ GameObject:
   - component: {fileID: 1237027978}
   - component: {fileID: 1237027977}
   - component: {fileID: 1237027976}
+  - component: {fileID: 1237027980}
   m_Layer: 0
   m_Name: Booster (1)
   m_TagString: Untagged
@@ -3859,6 +3879,24 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1237027980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237027974}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4de0c2f22a500524eabfffb5c45d592c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScoringObject
+  points: 30
+  flashColor: {r: 0.9921569, g: 0.9607844, b: 0.9019608, a: 1}
+  popScale: 1.2
+  effectDuration: 0.2
+  hitSound: {fileID: 8300000, guid: e7afd2ef3fee29049a53165f36cb6c55, type: 3}
+  soundVolume: 1
 --- !u!1 &1244527178
 GameObject:
   m_ObjectHideFlags: 0
