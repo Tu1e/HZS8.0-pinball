@@ -4,6 +4,7 @@ public class FlipperController : MonoBehaviour
 {
     [Header("Input Settings")]
     public KeyCode inputKey = KeyCode.LeftArrow;
+    public bool useKeyboard = true; // Da li koristiš tastaturu
 
     [Header("Flipper Settings")]
     public float flipperSpeed = 4000f; // Brzina trzaja
@@ -17,6 +18,7 @@ public class FlipperController : MonoBehaviour
     private HingeJoint2D hinge;
     private JointMotor2D motor;
     private bool wasActiveLastFrame = false; // Prati da li je bio aktivan prethodni frame
+    private bool isButtonPressed = false; // Za UI dugme
 
     void Start()
     {
@@ -29,20 +31,40 @@ public class FlipperController : MonoBehaviour
 
     void Update()
     {
-        // Proveravamo input
-        if (Input.GetKey(inputKey))
+        bool isActive = false;
+
+        // Proveri tastaturu (ako je omogućeno)
+        if (useKeyboard && Input.GetKey(inputKey))
         {
-            // Ako drzimo dugme, zelimo da idemo ka gornjem limitu (pozitivna brzina)
-            SetFlipperActive(true);
+            isActive = true;
         }
-        else
+
+        // Proveri UI dugme
+        if (isButtonPressed)
         {
-            // Ako pustimo, vracamo se dole (negativna brzina)
-            SetFlipperActive(false);
+            isActive = true;
         }
+
+        SetFlipperActive(isActive);
     }
 
-    void SetFlipperActive(bool isActive)
+    /// <summary>
+    /// Poziva se iz UI dugmeta (OnPointerDown)
+    /// </summary>
+    public void OnButtonDown()
+    {
+        isButtonPressed = true;
+    }
+
+    /// <summary>
+    /// Poziva se iz UI dugmeta (OnPointerUp)
+    /// </summary>
+    public void OnButtonUp()
+    {
+        isButtonPressed = false;
+    }
+
+    public void SetFlipperActive(bool isActive)
     {
         // Pusti zvuk SAMO kada prelazimo iz neaktivnog u aktivno stanje
         if (isActive && !wasActiveLastFrame)
