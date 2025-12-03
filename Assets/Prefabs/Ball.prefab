@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8565303059481554699}
   - component: {fileID: 5774392982750896813}
   - component: {fileID: 7257127696891791898}
+  - component: {fileID: 5931800892464823539}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Pinball
@@ -155,3 +156,15 @@ Rigidbody2D:
   m_SleepingMode: 0
   m_CollisionDetection: 1
   m_Constraints: 0
+--- !u!114 &5931800892464823539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8168868485681470419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c592a2859dd5e4c950303a4862bad2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Ball

@@ -2,12 +2,29 @@ using UnityEngine;
 
 public class PointsPopupSpawner : MonoBehaviour
 {
-    [SerializeField] Transform pfPointsPopup;
+    [SerializeField] Transform ball;
+
     void Start()
     {
-        Transform points = Instantiate(pfPointsPopup, Vector3.zero, Quaternion.identity, transform);
-        PointsPopup pointsPopup = points.GetComponent<PointsPopup>();
-        pointsPopup.Setup(10);
+    }
+
+    private void OnEnable()
+    {
+        ScoreManager.ScoreChanged += ShowPPopup;
+        Ball.OnBallInitialized += SetBallTransofrm;
+    }
+
+    private void OnDisable()
+    {
+        ScoreManager.ScoreChanged -= ShowPPopup;
+        Ball.OnBallInitialized -= SetBallTransofrm;
+    }
+
+    private void SetBallTransofrm(Transform t) => ball = t;
+    private void ShowPPopup(int value)
+    {
+        PointsPopup.Create(ball.position, value);
+
     }
 
 }

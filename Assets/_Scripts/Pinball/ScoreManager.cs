@@ -1,5 +1,6 @@
 using UnityEngine;
-using TMPro; // POTREBNO ZA RAD SA TextMeshPro
+using TMPro;
+using System; // POTREBNO ZA RAD SA TextMeshPro
 
 public class ScoreManager : MonoBehaviour
 {
@@ -16,6 +17,8 @@ public class ScoreManager : MonoBehaviour
     public Color scoreColor = Color.green; // Boja za aktivan skor
 
     private int currentScore = 0;
+
+    public static event Action<int> ScoreChanged;
 
     private void OnEnable()
     {
@@ -43,10 +46,10 @@ public class ScoreManager : MonoBehaviour
     {
         UpdateScoreText();
     }
-
     public void AddScore(int points)
     {
         currentScore += points;
+        ScoreChanged?.Invoke(points);
         UpdateScoreText();
     }
 

@@ -12,6 +12,9 @@ GameObject:
   - component: {fileID: 1535451453812497927}
   - component: {fileID: 7787107326961201752}
   - component: {fileID: 914584886704893506}
+  - component: {fileID: 9051956380541235997}
+  - component: {fileID: 5320347394246043931}
+  - component: {fileID: 8551791080894604190}
   m_Layer: 0
   m_Name: pfDamagePopup
   m_TagString: Untagged
@@ -188,3 +191,50 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 525746520453269849}
   m_CullTransparentMesh: 1
+--- !u!114 &9051956380541235997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525746520453269849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aaa17918ad217a148ae168d795792296, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PointsPopup
+  pfPointsPopup: {fileID: 0}
+--- !u!210 &5320347394246043931
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525746520453269849}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 10
+  m_SortAtRoot: 0
+--- !u!95 &8551791080894604190
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525746520453269849}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d311cb212ffb59a478b4a54513ac24db, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
