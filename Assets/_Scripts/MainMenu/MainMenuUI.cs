@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class MainMenuUI : MonoBehaviour
 {
     [SerializeField] TMP_InputField inputField;
+    [SerializeField] TMP_InputField inputFieldNickname;
     [SerializeField] Button playButton;
     [SerializeField] GameObject leaderboardPanel, mainPanel;
 
