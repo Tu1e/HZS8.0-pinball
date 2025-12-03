@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: c7a9fe91514635641b5dadee435777c6
+guid: cdfff963d2ac4b04a9a9d66b6bb76cca
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1450396565476216776
-    second: ARCADE2_0
+      213: -123058118157912311
+    second: next_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 100
@@ -72,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 1024
+    maxTextureSize: 512
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -126,127 +126,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ARCADE2_0
+      name: next_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 27
-        height: 41
+        width: 148
+        height: 60
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
-      outline:
-      - - {x: 0, y: -20.5}
-        - {x: 67.5, y: 0}
-        - {x: 0, y: 20.5}
-        - {x: -67.5, y: 0}
-      physicsShape:
-      - - {x: 0, y: -20.5}
-        - {x: 67.5, y: 0}
-        - {x: 0, y: 20.5}
-        - {x: -67.5, y: 0}
+      outline: []
+      physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 8cf08a4edf7d02410800000000000000
-      internalID: 1450396565476216776
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ARCADE2_1
-      rect:
-        serializedVersion: 2
-        x: 27
-        y: 0
-        width: 27
-        height: 41
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline:
-      - - {x: 0, y: -20.5}
-        - {x: 67.5, y: 0}
-        - {x: 0, y: 20.5}
-        - {x: -67.5, y: 0}
-      physicsShape:
-      - - {x: 0, y: -20.5}
-        - {x: 67.5, y: 0}
-        - {x: 0, y: 20.5}
-        - {x: -67.5, y: 0}
-      tessellationDetail: 0
-      bones: []
-      spriteID: 9f8f1d7c424c7944c8ec02ba832598fe
-      internalID: 1908221109
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ARCADE2_2
-      rect:
-        serializedVersion: 2
-        x: 54
-        y: 0
-        width: 27
-        height: 41
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 896265c16c0338844b8c63caefe844e7
-      internalID: 1862359892
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ARCADE2_3
-      rect:
-        serializedVersion: 2
-        x: 81
-        y: 0
-        width: 27
-        height: 41
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3fd2608d620547a4f9617abbdd2479e5
-      internalID: -452695449
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: ARCADE2_4
-      rect:
-        serializedVersion: 2
-        x: 108
-        y: 0
-        width: 27
-        height: 41
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 5830ae4abe6dd3c4d9aaa61025febf59
-      internalID: 482843361
+      spriteID: 90738742b4fca4ef0800000000000000
+      internalID: -123058118157912311
       vertices: []
       indices: 
       edges: []
@@ -255,7 +151,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: a570ddb1fb3acb141ba4d9bd13a4058b
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -263,15 +159,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries:
-      - key: SpriteEditor.SliceSettings
-        value: '{"sliceOnImport":false,"gridCellCount":{"x":5.0,"y":1.0},"gridSpriteSize":{"x":27.0,"y":41.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":1,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+      entries: []
     nameFileIdTable:
-      ARCADE2_0: 1450396565476216776
-      ARCADE2_1: 1908221109
-      ARCADE2_2: 1862359892
-      ARCADE2_3: -452695449
-      ARCADE2_4: 482843361
+      next_0: -123058118157912311
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
