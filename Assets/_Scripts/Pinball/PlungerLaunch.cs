@@ -18,6 +18,7 @@ public class PlungerScript : MonoBehaviour
 
     [Header("Audio Settings")]
     public AudioSource audioSource;
+    public AudioSource audioSource2;
     public AudioClip pullClip;      // Zvuk dok se nateže (npr. krckanje opruge)
     public AudioClip releaseClip;   // Zvuk kad se pusti (npr. BOING)
     [Range(0.5f, 3.0f)]
@@ -134,11 +135,11 @@ public class PlungerScript : MonoBehaviour
             audioSource.Stop();
             Debug.Log(">> RELESE");
 
-            audioSource.loop = false;
+            audioSource2.loop = false;
 
-            //audioSource.pitch = 1.0f;
+            audioSource2.pitch = 1.0f;
 
-            audioSource.PlayOneShot(releaseClip);
+            audioSource2.PlayOneShot(releaseClip);
         }
 
         // A. Izbaci lopticu
