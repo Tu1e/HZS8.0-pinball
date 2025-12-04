@@ -132,10 +132,11 @@ public class PlungerScript : MonoBehaviour
         if (releaseClip != null && audioSource != null)
         {
             audioSource.Stop();
+            Debug.Log(">> RELESE");
 
             audioSource.loop = false;
 
-            audioSource.pitch = 1.0f;
+            //audioSource.pitch = 1.0f;
 
             audioSource.PlayOneShot(releaseClip);
         }

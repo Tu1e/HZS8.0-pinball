@@ -1,6 +1,8 @@
-using UnityEngine;
+﻿using System; // POTREBNO ZA RAD SA TextMeshPro
+using System.Collections;
 using TMPro;
-using System; // POTREBNO ZA RAD SA TextMeshPro
+using UnityEngine;
+using UnityEngine.Networking;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -96,9 +98,46 @@ public class ScoreManager : MonoBehaviour
     {
         gameOverPanel.SetActive(true);
         scoreText.gameObject.SetActive(false);
-        
-        // Prikazi formatiran skor na game over ekranu
+
         string formattedScore = FormatScoreWithColor(currentScore);
         scoreText2.text = formattedScore;
+
+        // 🟢 PROVERA HIGHSCORE-A
+        if (currentScore > SupabaseController.Instance.highscore)
+        {
+            Debug.Log($"Novi highscore! Stari: {SupabaseController.Instance.highscore}, Novi: {currentScore}");
+
+            // Update u kontroleru
+            SupabaseController.Instance.highscore = currentScore;
+
+            // Update u Supabase bazi
+            StartCoroutine(UpdateHighscoreInDatabase(currentScore));
+        }
+        else
+        {
+            Debug.Log("Score nije veći od postojeće vrednosti. Highscore ostaje isti.");
+        }
     }
+
+    IEnumerator UpdateHighscoreInDatabase(int newScore)
+    {
+        string url = $"https://gcdfqzveobylyonwydxr.supabase.co/rest/v1/users?id=eq.{SupabaseController.Instance.userId}";
+        string json = "{\"highscore\":" + newScore + "}";
+
+        UnityWebRequest req = UnityWebRequest.Put(url, json);
+        req.method = "PATCH";
+        req.SetRequestHeader("apikey", SupabaseController.API_KEY);
+        req.SetRequestHeader("Authorization", "Bearer " + SupabaseController.API_KEY);
+        req.SetRequestHeader("Content-Type", "application/json");
+        req.SetRequestHeader("Prefer", "return=minimal");
+
+        yield return req.SendWebRequest();
+
+        if (req.result == UnityWebRequest.Result.Success)
+            Debug.Log($"[SUPABASE] Novi highscore upisan: {newScore}");
+        else
+            Debug.LogError("[SUPABASE] Greška pri upisu: " + req.error);
+    }
+
+
 }

@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 using TMPro;
 using UnityEngine.UI;
@@ -7,41 +7,45 @@ using System.Collections;
 
 public class MainMenuUI : MonoBehaviour
 {
-    [SerializeField] TMP_InputField inputField;          // user_id
-    [SerializeField] TMP_InputField inputFieldNickname;  // nickname
+    [SerializeField] TMP_InputField inputField;          // Code
+    [SerializeField] TMP_InputField inputFieldNickname;  // Nickname
     [SerializeField] Button playButton, nextButton;
     [SerializeField] GameObject leaderboardPanel, mainPanel;
 
     private const string URL = "https://gcdfqzveobylyonwydxr.supabase.co";
-    private const string TABLE = "Leaderboard";
-    private const string API_KEY = "YOUR_NEW_ANON_KEY"; // <- ubaci regenerisani
+    private const string TABLE = "users";
+    private const string API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjZGZxenZlb2J5bHlvbnd5ZHhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MTc2NTgsImV4cCI6MjA4MDI5MzY1OH0.Qq8F6bScU_qy241N1UXcml1THbtxvuRSQ8vuhE00dPg";
 
     private void Start()
     {
         playButton.interactable = false;
         nextButton.interactable = false;
+
         inputFieldNickname.gameObject.SetActive(false);
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        string id = Strip(inputField.text);
+        string code = inputField.text.Trim();
 
-        if (id.Length < 4 || id.StartsWith(" "))
-        {
-            playButton.interactable = false;
-            nextButton.interactable = false;
-            return;
-        }
+        // NEXT dugme je aktivno samo ako ima smislen unos
+        nextButton.interactable = code.Length >= 4 && !code.StartsWith(" ");
 
-        StartCoroutine(CheckUserId(id));
+        // PLAY dugme je aktivno samo ako je nickname validan ili vec postoji
+        if (inputFieldNickname.gameObject.activeSelf)
+            playButton.interactable = inputFieldNickname.text.Trim().Length >= 3;
     }
 
-    private string Strip(string s) => s.Trim();
-
-    IEnumerator CheckUserId(string userId)
+    public void Next()
     {
-        string url = $"{URL}/rest/v1/{TABLE}?select=username&user_id=eq.{userId}";
+        StartCoroutine(CheckCode(inputField.text.Trim()));
+    }
+
+    IEnumerator CheckCode(string code)
+    {
+        nextButton.interactable = false; // Zaključaj dok se proverava
+
+        string url = $"{URL}/rest/v1/{TABLE}?select=id,username,highscore&code=eq.{code}";
 
         UnityWebRequest req = UnityWebRequest.Get(url);
         req.SetRequestHeader("apikey", API_KEY);
@@ -49,66 +53,74 @@ public class MainMenuUI : MonoBehaviour
 
         yield return req.SendWebRequest();
 
-        if (req.result == UnityWebRequest.Result.Success)
+        if (req.result != UnityWebRequest.Result.Success)
         {
-            if (req.downloadHandler.text.Length < 5)
-            {
-                // user ne postoji
-                playButton.interactable = false;
-                nextButton.interactable = false;
-                inputFieldNickname.gameObject.SetActive(false);
-            }
-            else
-            {
-                // parse username
-                string json = req.downloadHandler.text;
-                string username = ExtractUsername(json);
+            Debug.LogError("Supabase error: " + req.error);
+            nextButton.interactable = true;
+            yield break;
+        }
 
-                SupabaseController.Instance.userId = userId;
-                SupabaseController.Instance.username = username;
+        string json = req.downloadHandler.text;
 
-                if (username == "Unknown")
-                {
-                    // treba upisati username
-                    inputFieldNickname.gameObject.SetActive(true);
-                    nextButton.interactable = true;
-                    playButton.interactable = false;
-                }
-                else
-                {
-                    // ima username - start allowed
-                    inputFieldNickname.gameObject.SetActive(false);
-                    nextButton.interactable = false;
-                    playButton.interactable = true;
-                }
-            }
+        if (json.Length < 5)
+        {
+            Debug.Log("CODE ne postoji u bazi.");
+            nextButton.interactable = true;
+            yield break;
+        }
+
+        // Extract values
+        string id = Extract(json, "id\":\"");
+        string username = Extract(json, "username\":\"");
+        string highscore = Extract(json, "highscore\":");
+
+        // SAVE TO CONTROLLER
+        SupabaseController.Instance.userId = id;
+        SupabaseController.Instance.username = username;
+        SupabaseController.Instance.highscore = long.Parse(highscore);
+
+        Debug.Log($"USER LOADED -> ID:{id} | USERNAME:{username} | HS:{highscore}");
+        playButton.gameObject.SetActive(true);
+        if (string.IsNullOrEmpty(username) || username == "EMPTY")
+        {
+            // USER POSTOJI ali nema nickname
+            inputFieldNickname.gameObject.SetActive(true);
+            playButton.interactable = false;
         }
         else
         {
-            Debug.LogError("Supabase error: " + req.error);
-            playButton.interactable = false;
+            // USER VEĆ IMA NICK
+            inputFieldNickname.gameObject.SetActive(false);
+            playButton.interactable = true;
         }
+
+        nextButton.gameObject.SetActive(false); // sakrij NEXT zauvek
     }
 
-    private string ExtractUsername(string json)
+    private string Extract(string json, string key)
     {
-        // o?ekivani format Supabase REST responsa:
-        // [{"username":"Player","user_id":"..."}]
-        int start = json.IndexOf("username\":\"") + 11;
+        int start = json.IndexOf(key);
+        if (start < 0) return "";
+        start += key.Length;
         int end = json.IndexOf("\"", start);
+        if (end < 0) end = json.IndexOf("}", start);
         return json.Substring(start, end - start);
     }
 
-    public void Next()
+    public void Play()
     {
-        // sa?uvaj nickname u kontroleru
-        SupabaseController.Instance.username = Strip(inputFieldNickname.text);
-        StartCoroutine(UpdateNickname(SupabaseController.Instance.userId, SupabaseController.Instance.username));
+        string nickname = inputFieldNickname.text.Trim();
+
+        if (inputFieldNickname.gameObject.activeSelf)
+            StartCoroutine(UpdateNickname(nickname));
+        else
+            SceneManager.LoadScene(1);
     }
 
-    IEnumerator UpdateNickname(string userId, string nickname)
+    IEnumerator UpdateNickname(string nickname)
     {
-        string url = $"{URL}/rest/v1/{TABLE}?user_id=eq.{userId}";
+        string id = SupabaseController.Instance.userId;
+        string url = $"{URL}/rest/v1/{TABLE}?id=eq.{id}";
         string json = "{\"username\":\"" + nickname + "\"}";
 
         UnityWebRequest req = UnityWebRequest.Put(url, json);
@@ -122,16 +134,10 @@ public class MainMenuUI : MonoBehaviour
 
         if (req.result == UnityWebRequest.Result.Success)
         {
-            playButton.interactable = true;
-            nextButton.interactable = false;
-            inputFieldNickname.gameObject.SetActive(false);
+            SupabaseController.Instance.username = nickname;
+            SceneManager.LoadScene(1);
         }
-        else Debug.LogError(req.error);
-    }
-
-    public void Play()
-    {
-        SceneManager.LoadScene(1);
+        else Debug.LogError("Nickname update error: " + req.error);
     }
 
     public void Leaderboard()
