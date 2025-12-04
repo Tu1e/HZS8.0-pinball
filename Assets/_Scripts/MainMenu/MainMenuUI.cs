@@ -11,11 +11,18 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] TMP_InputField inputFieldNickname;  // Nickname
     [SerializeField] Button playButton, nextButton;
     [SerializeField] GameObject leaderboardPanel, mainPanel;
+    [SerializeField] Transform leaderboardContent;
+    [SerializeField] GameObject leaderboardItemPrefab;
 
     private const string URL = "https://gcdfqzveobylyonwydxr.supabase.co";
     private const string TABLE = "users";
     private const string API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjZGZxenZlb2J5bHlvbnd5ZHhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MTc2NTgsImV4cCI6MjA4MDI5MzY1OH0.Qq8F6bScU_qy241N1UXcml1THbtxvuRSQ8vuhE00dPg";
 
+
+    [Header("Score Display Settings")]
+    public int scoreDigits = 7; // Broj cifara za prikaz (0000000)
+    public Color normalColor = Color.white; // Boja za vodece nule
+    public Color scoreColor = Color.green; // Boja za aktivan skor
     private void Start()
     {
         playButton.interactable = false;
@@ -77,7 +84,7 @@ public class MainMenuUI : MonoBehaviour
         // SAVE TO CONTROLLER
         SupabaseController.Instance.userId = id;
         SupabaseController.Instance.username = username;
-        SupabaseController.Instance.highscore = long.Parse(highscore);
+        SupabaseController.Instance.highscore = int.Parse(highscore);
 
         Debug.Log($"USER LOADED -> ID:{id} | USERNAME:{username} | HS:{highscore}");
         playButton.gameObject.SetActive(true);
@@ -144,5 +151,102 @@ public class MainMenuUI : MonoBehaviour
     {
         leaderboardPanel.SetActive(true);
         mainPanel.SetActive(false);
+
+        StartCoroutine(LoadLeaderboard());
     }
+
+    public void Back()
+    {
+        leaderboardPanel.SetActive(false);
+        mainPanel.SetActive(true);
+    }
+
+    IEnumerator LoadLeaderboard()
+    {
+        string url = $"{URL}/rest/v1/{TABLE}?select=username,highscore&order=highscore.desc&limit=10";
+
+        UnityWebRequest req = UnityWebRequest.Get(url);
+        req.SetRequestHeader("apikey", API_KEY);
+        req.SetRequestHeader("Authorization", "Bearer " + API_KEY);
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Leaderboard error: " + req.error);
+            yield break;
+        }
+
+        string json = req.downloadHandler.text;
+        Debug.Log("LEADERBOARD JSON: " + json);
+
+        // Obrisi stari sadržaj
+        foreach (Transform child in leaderboardContent)
+            Destroy(child.gameObject);
+
+        // JSON format od Supabase:  
+        // [{"username":"Ana","highscore":221},{"username":"Mika","highscore":100}]
+        int index = 0;
+        int rank = 1;
+
+        while (true)
+        {
+            int userIndex = json.IndexOf("\"username\":\"", index);
+            if (userIndex < 0) break;
+            userIndex += 12;
+
+            int userEnd = json.IndexOf("\"", userIndex);
+            string username = json.Substring(userIndex, userEnd - userIndex);
+
+            int hsKey = json.IndexOf("\"highscore\":", userEnd) + 12;
+            int hsEnd = json.IndexOf("}", hsKey);
+            string highscore = json.Substring(hsKey, hsEnd - hsKey);
+
+            // Napravi UI element
+            GameObject item = Instantiate(leaderboardItemPrefab, leaderboardContent);
+
+            TMP_Text[] fields = item.GetComponentsInChildren<TMP_Text>();
+            fields[0].text = rank.ToString();         // #1
+            fields[1].text = username;                // Player
+            int scoreValue = int.Parse(highscore);
+            fields[2].text = FormatScoreWithColor(scoreValue);             // Score
+
+            rank++;
+            index = hsEnd;
+        }
+    }
+
+    string FormatScoreWithColor(int score)
+    {
+        // Konvertuj skor u string sa vode?im nulama
+        string scoreString = score.ToString().PadLeft(scoreDigits, '0');
+
+        // Ako je skor 0, sve su nule normalne boje
+        if (score == 0)
+        {
+            return $"<color=#{ColorUtility.ToHtmlStringRGB(normalColor)}>{scoreString}</color>";
+        }
+
+        // Prona?i prvu cifru koja nije nula
+        int firstNonZeroIndex = scoreString.Length;
+        for (int i = 0; i < scoreString.Length; i++)
+        {
+            if (scoreString[i] != '0')
+            {
+                firstNonZeroIndex = i;
+                break;
+            }
+        }
+
+        // Podeli string na vodece nule i aktivan skor
+        string leadingZeros = scoreString.Substring(0, firstNonZeroIndex);
+        string activeScore = scoreString.Substring(firstNonZeroIndex);
+
+        // Formatiraj sa bojama
+        string normalColorHex = ColorUtility.ToHtmlStringRGB(normalColor);
+        string scoreColorHex = ColorUtility.ToHtmlStringRGB(scoreColor);
+
+        return $"<color=#{normalColorHex}>{leadingZeros}</color><color=#{scoreColorHex}>{activeScore}</color>";
+    }
+
 }

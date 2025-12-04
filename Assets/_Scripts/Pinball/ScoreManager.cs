@@ -10,6 +10,8 @@ public class ScoreManager : MonoBehaviour
 
     public TextMeshProUGUI scoreText;
     public TextMeshProUGUI scoreText2;
+    public TextMeshProUGUI highscore;
+
 
     public GameObject gameOverPanel;
 
@@ -59,6 +61,7 @@ public class ScoreManager : MonoBehaviour
     {
         string formattedScore = FormatScoreWithColor(currentScore);
         scoreText.text = formattedScore;
+        highscore.text = "HIGH SCORE: " + FormatScoreWithColor(SupabaseController.Instance.highscore);
     }
 
     string FormatScoreWithColor(int score)
@@ -109,7 +112,7 @@ public class ScoreManager : MonoBehaviour
 
             // Update u kontroleru
             SupabaseController.Instance.highscore = currentScore;
-
+            highscore.text = "HIGH SCORE: " + FormatScoreWithColor(currentScore);
             // Update u Supabase bazi
             StartCoroutine(UpdateHighscoreInDatabase(currentScore));
         }
