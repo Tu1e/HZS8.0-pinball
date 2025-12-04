@@ -407,7 +407,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -148}
+  m_AnchoredPosition: {x: 0, y: -120}
   m_SizeDelta: {x: 459.4552, y: 130.68945}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &222990479
@@ -738,8 +738,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 2053317945}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.99999887}
-  m_AnchorMax: {x: 1, y: 0.99999887}
+  m_AnchorMin: {x: 0, y: 0.9999992}
+  m_AnchorMax: {x: 1, y: 0.9999992}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -954,7 +954,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -569.82587}
+  m_AnchoredPosition: {x: 0, y: -623.97253}
   m_SizeDelta: {x: -17, y: 20}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &713195567
@@ -1168,6 +1168,10 @@ MonoBehaviour:
   mainPanel: {fileID: 305271721}
   leaderboardContent: {fileID: 1974981200}
   leaderboardItemPrefab: {fileID: 8610411177349337358, guid: 000e527f2de80e14292158cd6b287bf2, type: 3}
+  leaderboardCurrentPlaceItemPrefab: {fileID: 8050326964391363159, guid: f0525b8ddc6cb524fb425af270d138ca, type: 3}
+  scoreDigits: 7
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  scoreColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!1 &780678571
 GameObject:
   m_ObjectHideFlags: 0
@@ -1204,7 +1208,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 523.669, y: -1106.6517}
+  m_AnchoredPosition: {x: 523.669, y: -1214.9451}
   m_SizeDelta: {x: 20, y: -17}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &780678573
@@ -1250,7 +1254,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 391794234}
   m_HandleRect: {fileID: 391794233}
   m_Direction: 2
-  m_Value: 0.99999887
+  m_Value: 0.9999992
   m_Size: 0
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -3009,8 +3013,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -144.5161, y: -385.3765}
+  m_AnchoredPosition: {x: 0, y: -53.22}
+  m_SizeDelta: {x: -144.5161, y: -222.9365}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1974981201
 MonoBehaviour:
@@ -3095,10 +3099,10 @@ MonoBehaviour:
   m_Padding:
     m_Left: 0
     m_Right: 0
-    m_Top: 30
+    m_Top: 20
     m_Bottom: 0
   m_ChildAlignment: 1
-  m_Spacing: 0
+  m_Spacing: -40
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0

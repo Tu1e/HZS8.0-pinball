@@ -13,6 +13,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] GameObject leaderboardPanel, mainPanel;
     [SerializeField] Transform leaderboardContent;
     [SerializeField] GameObject leaderboardItemPrefab;
+    [SerializeField] GameObject leaderboardCurrentPlaceItemPrefab;
 
     private const string URL = "https://gcdfqzveobylyonwydxr.supabase.co";
     private const string TABLE = "users";
@@ -153,6 +154,7 @@ public class MainMenuUI : MonoBehaviour
         mainPanel.SetActive(false);
 
         StartCoroutine(LoadLeaderboard());
+        StartCoroutine(LoadUserRank());
     }
 
     public void Back()
@@ -203,18 +205,63 @@ public class MainMenuUI : MonoBehaviour
             string highscore = json.Substring(hsKey, hsEnd - hsKey);
 
             // Napravi UI element
-            GameObject item = Instantiate(leaderboardItemPrefab, leaderboardContent);
+            GameObject prefabToUse = username == SupabaseController.Instance.username
+                ? leaderboardCurrentPlaceItemPrefab
+                : leaderboardItemPrefab;
+
+            GameObject item = Instantiate(prefabToUse, leaderboardContent);
 
             TMP_Text[] fields = item.GetComponentsInChildren<TMP_Text>();
             fields[0].text = rank.ToString();         // #1
             fields[1].text = username;                // Player
+
             int scoreValue = int.Parse(highscore);
-            fields[2].text = FormatScoreWithColor(scoreValue);             // Score
+            fields[2].text = FormatScoreWithColor(scoreValue); // Score
 
             rank++;
             index = hsEnd;
         }
     }
+
+    IEnumerator LoadUserRank()
+    {
+        string userId = SupabaseController.Instance.userId;
+        if (string.IsNullOrEmpty(userId))
+            yield break;
+
+        string url = $"{URL}/rest/v1/rpc/get_user_rank";
+
+        string json = "{\"uid\":\"" + userId + "\"}";
+
+        UnityWebRequest req = new UnityWebRequest(url, "POST");
+        byte[] body = System.Text.Encoding.UTF8.GetBytes(json);
+        req.uploadHandler = new UploadHandlerRaw(body);
+        req.downloadHandler = new DownloadHandlerBuffer();
+
+        req.SetRequestHeader("apikey", API_KEY);
+        req.SetRequestHeader("Authorization", "Bearer " + API_KEY);
+        req.SetRequestHeader("Content-Type", "application/json");
+
+        yield return req.SendWebRequest();
+
+        if (req.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Rank error: " + req.error + "\n" + req.downloadHandler.text);
+            yield break;
+        }
+
+        int rank = int.Parse(req.downloadHandler.text);
+
+        GameObject item = Instantiate(leaderboardCurrentPlaceItemPrefab, leaderboardContent);
+        TMP_Text[] fields = item.GetComponentsInChildren<TMP_Text>();
+        fields[0].text = rank.ToString();
+        fields[1].text = SupabaseController.Instance.username;
+        fields[2].text = FormatScoreWithColor(SupabaseController.Instance.highscore);
+
+        fields[1].color = Color.yellow; // highlight
+    }
+
+
 
     string FormatScoreWithColor(int score)
     {
