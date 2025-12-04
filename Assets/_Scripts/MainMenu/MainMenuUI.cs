@@ -14,6 +14,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] Transform leaderboardContent;
     [SerializeField] GameObject leaderboardItemPrefab;
     [SerializeField] GameObject leaderboardCurrentPlaceItemPrefab;
+    [SerializeField] GameObject homeButton;
+    [SerializeField] CanvasGroup mCG, lCG;
 
     private const string URL = "https://gcdfqzveobylyonwydxr.supabase.co";
     private const string TABLE = "users";
@@ -152,6 +154,10 @@ public class MainMenuUI : MonoBehaviour
     {
         leaderboardPanel.SetActive(true);
         mainPanel.SetActive(false);
+        homeButton.SetActive(true);
+
+        mCG.blocksRaycasts = false;
+        lCG.blocksRaycasts = true;
 
         StartCoroutine(LoadLeaderboard());
         StartCoroutine(LoadUserRank());
@@ -161,11 +167,16 @@ public class MainMenuUI : MonoBehaviour
     {
         leaderboardPanel.SetActive(false);
         mainPanel.SetActive(true);
+        homeButton.SetActive(false);
+        mCG.blocksRaycasts = true;
+        lCG.blocksRaycasts = false;
+
     }
 
     IEnumerator LoadLeaderboard()
     {
-        string url = $"{URL}/rest/v1/{TABLE}?select=username,highscore&order=highscore.desc&limit=10";
+        // ❗ Dodaj id u SELECT, jer nam treba za poređenje
+        string url = $"{URL}/rest/v1/{TABLE}?select=id,username,highscore&order=highscore.desc&limit=10";
 
         UnityWebRequest req = UnityWebRequest.Get(url);
         req.SetRequestHeader("apikey", API_KEY);
@@ -186,42 +197,47 @@ public class MainMenuUI : MonoBehaviour
         foreach (Transform child in leaderboardContent)
             Destroy(child.gameObject);
 
-        // JSON format od Supabase:  
-        // [{"username":"Ana","highscore":221},{"username":"Mika","highscore":100}]
         int index = 0;
         int rank = 1;
 
         while (true)
         {
+            // --- EXTRACT USERNAME ---
             int userIndex = json.IndexOf("\"username\":\"", index);
             if (userIndex < 0) break;
             userIndex += 12;
-
             int userEnd = json.IndexOf("\"", userIndex);
             string username = json.Substring(userIndex, userEnd - userIndex);
 
+            // --- EXTRACT HIGHSCORE ---
             int hsKey = json.IndexOf("\"highscore\":", userEnd) + 12;
             int hsEnd = json.IndexOf("}", hsKey);
             string highscore = json.Substring(hsKey, hsEnd - hsKey);
+            int scoreValue = int.Parse(highscore);
 
-            // Napravi UI element
-            GameObject prefabToUse = username == SupabaseController.Instance.username
+            // --- EXTRACT USER ID (KLJUČNA IZMENA) ---
+            int idKey = json.IndexOf("\"id\":\"", userEnd) + 6;
+            int idEnd = json.IndexOf("\"", idKey);
+            string userId = json.Substring(idKey, idEnd - idKey);
+
+            // --- ODABIR PREFABA PO USER ID-u ---
+            GameObject prefabToUse = userId == SupabaseController.Instance.userId
                 ? leaderboardCurrentPlaceItemPrefab
                 : leaderboardItemPrefab;
 
             GameObject item = Instantiate(prefabToUse, leaderboardContent);
 
+            // POPUNI UI POLJA
             TMP_Text[] fields = item.GetComponentsInChildren<TMP_Text>();
-            fields[0].text = rank.ToString();         // #1
-            fields[1].text = username;                // Player
-
-            int scoreValue = int.Parse(highscore);
-            fields[2].text = FormatScoreWithColor(scoreValue); // Score
+            fields[0].text = rank.ToString();                   // #1
+            fields[1].text = username;                          // Username
+            fields[2].text = FormatScoreWithColor(scoreValue);  // Score formatiran
 
             rank++;
             index = hsEnd;
         }
     }
+
 
     IEnumerator LoadUserRank()
     {

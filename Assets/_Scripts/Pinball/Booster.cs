@@ -18,7 +18,7 @@ public class Booster : MonoBehaviour
             {
                 AudioHelper.Play2DSound(hitSound, soundVolume);
             }
-            ScoreManager.Instance.AddScore(50);
+            ScoreManager.Instance.AddScore(100);
             rb.linearVelocityY = 0;
             rb.AddForceY(boostForce);
             DestroyBooser();

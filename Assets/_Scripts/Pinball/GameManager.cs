@@ -4,7 +4,7 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [Header("Podešavanja Života")]
-    public int maxLives = 3;
+    public int maxLives = 5;
     public Transform respawnPosition;
     public StopperController launcherStopper;
     public StopperSensor stopperSensor;
@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
         {
             stopperSensor.ResetSensor();
         }
-            if (lives < 3)
+            if (lives < 5)
                 OnBallUsed?.Invoke();
 
         Debug.Log("Loptica respawnana. Životi preostali: " + lives);
