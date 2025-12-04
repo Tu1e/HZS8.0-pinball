@@ -16,21 +16,23 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] GameObject leaderboardCurrentPlaceItemPrefab;
     [SerializeField] GameObject homeButton;
     [SerializeField] CanvasGroup mCG, lCG;
+    [SerializeField] GameObject nicknameWarningText; // UI warning text
+    [SerializeField] TextAsset badWordsFile;       // lokalna lista
+
 
     private const string URL = "https://gcdfqzveobylyonwydxr.supabase.co";
     private const string TABLE = "users";
-    private const string API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjZGZxenZlb2J5bHlvbnd5ZHhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MTc2NTgsImV4cCI6MjA4MDI5MzY1OH0.Qq8F6bScU_qy241N1UXcml1THbtxvuRSQ8vuhE00dPg";
-
+    private const string API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdjZGZxenZlb2J5bHlvbnd5ZHhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MTc2NTgsImV4cCI6MjA4MDI5MzY1OH0.Qq8F6bScU_qy241N1UXcml1THbtxvuRSQ8vuhE00dPg"; // ubaci key
 
     [Header("Score Display Settings")]
-    public int scoreDigits = 7; // Broj cifara za prikaz (0000000)
-    public Color normalColor = Color.white; // Boja za vodece nule
-    public Color scoreColor = Color.green; // Boja za aktivan skor
+    public int scoreDigits = 7;
+    public Color normalColor = Color.white;
+    public Color scoreColor = Color.green;
+
     private void Start()
     {
         playButton.interactable = false;
         nextButton.interactable = false;
-
         inputFieldNickname.gameObject.SetActive(false);
     }
 
@@ -38,10 +40,10 @@ public class MainMenuUI : MonoBehaviour
     {
         string code = inputField.text.Trim();
 
-        // NEXT dugme je aktivno samo ako ima smislen unos
+        // NEXT aktivan samo ako je kod validan
         nextButton.interactable = code.Length >= 4 && !code.StartsWith(" ");
 
-        // PLAY dugme je aktivno samo ako je nickname validan ili vec postoji
+        // PLAY aktivan samo ako nickname ima smisla
         if (inputFieldNickname.gameObject.activeSelf)
             playButton.interactable = inputFieldNickname.text.Trim().Length >= 3;
     }
@@ -53,7 +55,7 @@ public class MainMenuUI : MonoBehaviour
 
     IEnumerator CheckCode(string code)
     {
-        nextButton.interactable = false; // Zaključaj dok se proverava
+        nextButton.interactable = false;
 
         string url = $"{URL}/rest/v1/{TABLE}?select=id,username,highscore&code=eq.{code}";
 
@@ -79,32 +81,25 @@ public class MainMenuUI : MonoBehaviour
             yield break;
         }
 
-        // Extract values
         string id = Extract(json, "id\":\"");
         string username = Extract(json, "username\":\"");
         string highscore = Extract(json, "highscore\":");
 
-        // SAVE TO CONTROLLER
         SupabaseController.Instance.userId = id;
         SupabaseController.Instance.username = username;
         SupabaseController.Instance.highscore = int.Parse(highscore);
 
         Debug.Log($"USER LOADED -> ID:{id} | USERNAME:{username} | HS:{highscore}");
-        playButton.gameObject.SetActive(true);
-        if (string.IsNullOrEmpty(username) || username == "EMPTY")
-        {
-            // USER POSTOJI ali nema nickname
-            inputFieldNickname.gameObject.SetActive(true);
-            playButton.interactable = false;
-        }
-        else
-        {
-            // USER VEĆ IMA NICK
-            inputFieldNickname.gameObject.SetActive(false);
-            playButton.interactable = true;
-        }
 
-        nextButton.gameObject.SetActive(false); // sakrij NEXT zauvek
+        inputFieldNickname.gameObject.SetActive(true);
+
+        inputFieldNickname.text =
+            (string.IsNullOrEmpty(username) || username == "EMPTY") ? "" : username;
+
+        playButton.gameObject.SetActive(true);
+        playButton.interactable = inputFieldNickname.text.Trim().Length >= 3;
+
+        nextButton.gameObject.SetActive(false);
     }
 
     private string Extract(string json, string key)
@@ -119,13 +114,29 @@ public class MainMenuUI : MonoBehaviour
 
     public void Play()
     {
-        string nickname = inputFieldNickname.text.Trim();
+        string newNick = inputFieldNickname.text.Trim();
+        string oldNick = SupabaseController.Instance.username;
 
-        if (inputFieldNickname.gameObject.activeSelf)
-            StartCoroutine(UpdateNickname(nickname));
+        playButton.interactable = false; // blok dok proveravamo
+
+        // prvo proveri blacklist
+        if (IsBadWord(newNick))
+        {
+            nicknameWarningText.SetActive(true);
+            playButton.interactable = false;
+            return;
+        }
+
+        if (newNick != oldNick)
+            StartCoroutine(CheckNicknameAvailability(newNick));
         else
+        {
+            nicknameWarningText.SetActive(false);
             SceneManager.LoadScene(1);
+        }
+            
     }
+
 
     IEnumerator UpdateNickname(string nickname)
     {
@@ -170,12 +181,10 @@ public class MainMenuUI : MonoBehaviour
         homeButton.SetActive(false);
         mCG.blocksRaycasts = true;
         lCG.blocksRaycasts = false;
-
     }
 
     IEnumerator LoadLeaderboard()
     {
-        // ❗ Dodaj id u SELECT, jer nam treba za poređenje
         string url = $"{URL}/rest/v1/{TABLE}?select=id,username,highscore&order=highscore.desc&limit=10";
 
         UnityWebRequest req = UnityWebRequest.Get(url);
@@ -183,7 +192,6 @@ public class MainMenuUI : MonoBehaviour
         req.SetRequestHeader("Authorization", "Bearer " + API_KEY);
 
         yield return req.SendWebRequest();
-
         if (req.result != UnityWebRequest.Result.Success)
         {
             Debug.LogError("Leaderboard error: " + req.error);
@@ -193,7 +201,6 @@ public class MainMenuUI : MonoBehaviour
         string json = req.downloadHandler.text;
         Debug.Log("LEADERBOARD JSON: " + json);
 
-        // Obrisi stari sadržaj
         foreach (Transform child in leaderboardContent)
             Destroy(child.gameObject);
 
@@ -202,42 +209,35 @@ public class MainMenuUI : MonoBehaviour
 
         while (true)
         {
-            // --- EXTRACT USERNAME ---
             int userIndex = json.IndexOf("\"username\":\"", index);
             if (userIndex < 0) break;
             userIndex += 12;
             int userEnd = json.IndexOf("\"", userIndex);
             string username = json.Substring(userIndex, userEnd - userIndex);
 
-            // --- EXTRACT HIGHSCORE ---
             int hsKey = json.IndexOf("\"highscore\":", userEnd) + 12;
             int hsEnd = json.IndexOf("}", hsKey);
-            string highscore = json.Substring(hsKey, hsEnd - hsKey);
-            int scoreValue = int.Parse(highscore);
+            int scoreValue = int.Parse(json.Substring(hsKey, hsEnd - hsKey));
 
-            // --- EXTRACT USER ID (KLJUČNA IZMENA) ---
             int idKey = json.IndexOf("\"id\":\"", userEnd) + 6;
             int idEnd = json.IndexOf("\"", idKey);
             string userId = json.Substring(idKey, idEnd - idKey);
 
-            // --- ODABIR PREFABA PO USER ID-u ---
-            GameObject prefabToUse = userId == SupabaseController.Instance.userId
+            GameObject prefab = userId == SupabaseController.Instance.userId
                 ? leaderboardCurrentPlaceItemPrefab
                 : leaderboardItemPrefab;
 
-            GameObject item = Instantiate(prefabToUse, leaderboardContent);
+            GameObject item = Instantiate(prefab, leaderboardContent);
 
-            // POPUNI UI POLJA
             TMP_Text[] fields = item.GetComponentsInChildren<TMP_Text>();
-            fields[0].text = rank.ToString();                   // #1
-            fields[1].text = username;                          // Username
-            fields[2].text = FormatScoreWithColor(scoreValue);  // Score formatiran
+            fields[0].text = rank.ToString();
+            fields[1].text = username;
+            fields[2].text = FormatScoreWithColor(scoreValue);
 
             rank++;
             index = hsEnd;
         }
     }
-
 
     IEnumerator LoadUserRank()
     {
@@ -246,7 +246,6 @@ public class MainMenuUI : MonoBehaviour
             yield break;
 
         string url = $"{URL}/rest/v1/rpc/get_user_rank";
-
         string json = "{\"uid\":\"" + userId + "\"}";
 
         UnityWebRequest req = new UnityWebRequest(url, "POST");
@@ -274,42 +273,68 @@ public class MainMenuUI : MonoBehaviour
         fields[1].text = SupabaseController.Instance.username;
         fields[2].text = FormatScoreWithColor(SupabaseController.Instance.highscore);
 
-        fields[1].color = Color.yellow; // highlight
+        fields[1].color = Color.yellow;
     }
-
-
 
     string FormatScoreWithColor(int score)
     {
-        // Konvertuj skor u string sa vode?im nulama
         string scoreString = score.ToString().PadLeft(scoreDigits, '0');
 
-        // Ako je skor 0, sve su nule normalne boje
         if (score == 0)
-        {
             return $"<color=#{ColorUtility.ToHtmlStringRGB(normalColor)}>{scoreString}</color>";
-        }
 
-        // Prona?i prvu cifru koja nije nula
-        int firstNonZeroIndex = scoreString.Length;
+        int firstNonZero = scoreString.Length;
         for (int i = 0; i < scoreString.Length; i++)
         {
             if (scoreString[i] != '0')
             {
-                firstNonZeroIndex = i;
+                firstNonZero = i;
                 break;
             }
         }
 
-        // Podeli string na vodece nule i aktivan skor
-        string leadingZeros = scoreString.Substring(0, firstNonZeroIndex);
-        string activeScore = scoreString.Substring(firstNonZeroIndex);
+        string zeros = scoreString[..firstNonZero];
+        string active = scoreString[firstNonZero..];
 
-        // Formatiraj sa bojama
-        string normalColorHex = ColorUtility.ToHtmlStringRGB(normalColor);
-        string scoreColorHex = ColorUtility.ToHtmlStringRGB(scoreColor);
-
-        return $"<color=#{normalColorHex}>{leadingZeros}</color><color=#{scoreColorHex}>{activeScore}</color>";
+        return $"<color=#{ColorUtility.ToHtmlStringRGB(normalColor)}>{zeros}</color>" +
+               $"<color=#{ColorUtility.ToHtmlStringRGB(scoreColor)}>{active}</color>";
     }
+
+    IEnumerator CheckNicknameAvailability(string nickname)
+    {
+        string url = $"{URL}/rest/v1/{TABLE}?select=id&username=eq.{nickname}";
+
+        UnityWebRequest req = UnityWebRequest.Get(url);
+        req.SetRequestHeader("apikey", API_KEY);
+        req.SetRequestHeader("Authorization", "Bearer " + API_KEY);
+
+        yield return req.SendWebRequest();
+
+        // ako je nesto doslo → vec postoji
+        if (req.downloadHandler.text.Length > 5)
+        {
+            nicknameWarningText.SetActive(true);
+            playButton.interactable = false;
+            yield break;
+        }
+
+        StartCoroutine(UpdateNickname(nickname));
+    }
+
+    bool IsBadWord(string nickname)
+    {
+        if (badWordsFile == null) return false;
+
+        string[] badWords = badWordsFile.text.Split('\n');
+
+        foreach (string word in badWords)
+        {
+            if (nickname.ToLower().Contains(word.Trim().ToLower()))
+                return true;
+        }
+
+        return false;
+    }
+
 
 }

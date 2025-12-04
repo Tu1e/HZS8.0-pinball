@@ -22,4 +22,13 @@ public class StopperController : MonoBehaviour
     {
         stopperCollider.isTrigger = false;
     }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Pinball"))
+        {
+            float rand = Random.Range(-500f, 500f);
+            other.GetComponent<Rigidbody2D>().AddForceX(rand);
+        }
+    }
 }
