@@ -50,6 +50,7 @@ public class ScoreManager : MonoBehaviour
     {
         UpdateScoreText();
     }
+
     public void AddScore(int points)
     {
         currentScore += points;
@@ -59,9 +60,34 @@ public class ScoreManager : MonoBehaviour
 
     void UpdateScoreText()
     {
-        string formattedScore = FormatScoreWithColor(currentScore);
-        scoreText.text = formattedScore;
-        highscore.text = "HIGH SCORE: " + FormatScoreWithColor(SupabaseController.Instance.highscore);
+        // 🟢 NULL CHECK: Proveri da li scoreText postoji
+        if (scoreText != null)
+        {
+            string formattedScore = FormatScoreWithColor(currentScore);
+            scoreText.text = formattedScore;
+        }
+        else
+        {
+            Debug.LogWarning("[ScoreManager] scoreText je null! Dodeli ga u Inspector-u.");
+        }
+
+        // 🟢 NULL CHECK: Proveri da li highscore postoji
+        if (highscore != null)
+        {
+            // 🟢 NULL CHECK: Proveri da li SupabaseController postoji
+            if (SupabaseController.Instance != null)
+            {
+                highscore.text = "HIGH SCORE: " + FormatScoreWithColor(SupabaseController.Instance.highscore);
+            }
+            else
+            {
+                highscore.text = "HIGH SCORE: " + FormatScoreWithColor(0);
+            }
+        }
+        else
+        {
+            Debug.LogWarning("[ScoreManager] highscore TextMeshPro je null! Dodeli ga u Inspector-u.");
+        }
     }
 
     string FormatScoreWithColor(int score)
@@ -99,11 +125,28 @@ public class ScoreManager : MonoBehaviour
 
     void GameOverScreen()
     {
-        gameOverPanel.SetActive(true);
-        scoreText.gameObject.SetActive(false);
+        if (gameOverPanel != null)
+        {
+            gameOverPanel.SetActive(true);
+        }
+        
+        if (scoreText != null)
+        {
+            scoreText.gameObject.SetActive(false);
+        }
 
-        string formattedScore = FormatScoreWithColor(currentScore);
-        scoreText2.text = formattedScore;
+        if (scoreText2 != null)
+        {
+            string formattedScore = FormatScoreWithColor(currentScore);
+            scoreText2.text = formattedScore;
+        }
+
+        // 🟢 NULL CHECK: Proveri da li SupabaseController postoji
+        if (SupabaseController.Instance == null)
+        {
+            Debug.LogWarning("[ScoreManager] SupabaseController.Instance je null! Ne mogu da sačuvam highscore.");
+            return;
+        }
 
         // 🟢 PROVERA HIGHSCORE-A
         if (currentScore > SupabaseController.Instance.highscore)
@@ -112,7 +155,12 @@ public class ScoreManager : MonoBehaviour
 
             // Update u kontroleru
             SupabaseController.Instance.highscore = currentScore;
-            highscore.text = "HIGH SCORE: " + FormatScoreWithColor(currentScore);
+            
+            if (highscore != null)
+            {
+                highscore.text = "HIGH SCORE: " + FormatScoreWithColor(currentScore);
+            }
+            
             // Update u Supabase bazi
             StartCoroutine(UpdateHighscoreInDatabase(currentScore));
         }
@@ -124,6 +172,13 @@ public class ScoreManager : MonoBehaviour
 
     IEnumerator UpdateHighscoreInDatabase(int newScore)
     {
+        // 🟢 DODATNA PROVERA PRE SLANJA U BAZU
+        if (SupabaseController.Instance == null)
+        {
+            Debug.LogError("[ScoreManager] SupabaseController.Instance je null! Ne mogu da ažuriram bazu.");
+            yield break;
+        }
+
         string url = $"https://gcdfqzveobylyonwydxr.supabase.co/rest/v1/users?id=eq.{SupabaseController.Instance.userId}";
         string json = "{\"highscore\":" + newScore + "}";
 
