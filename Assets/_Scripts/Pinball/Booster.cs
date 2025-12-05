@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class Booster : MonoBehaviour
 {
-    [SerializeField] float boostForce = 1.0f;
+    [SerializeField] float boostForce = 15f; // Boost speed in units/second
 
     [Header("Audio Settings")]
     public AudioClip hitSound;
@@ -13,15 +13,35 @@ public class Booster : MonoBehaviour
     {
         if (other.CompareTag("Pinball"))
         {
+            Debug.Log("Booster triggered!");
+            
             Rigidbody2D rb = other.gameObject.GetComponent<Rigidbody2D>();
-            if(hitSound != null)
+            if (rb != null)
             {
-                AudioHelper.Play2DSound(hitSound, soundVolume);
+                Debug.Log($"Before boost - Velocity: {rb.linearVelocity}");
+                
+                if(hitSound != null)
+                {
+                    AudioHelper.Play2DSound(hitSound, soundVolume);
+                }
+                
+                if (ScoreManager.Instance != null)
+                {
+                    ScoreManager.Instance.AddScore(100);
+                }
+                
+                // Directly set velocity for instant boost (bypasses physics)
+                // Keep horizontal velocity, but set vertical velocity to boost value
+                rb.linearVelocity = new Vector2(rb.linearVelocity.x, boostForce);
+                
+                Debug.Log($"After boost - New Velocity: {rb.linearVelocity}");
+                
+                DestroyBooser();
             }
-            ScoreManager.Instance.AddScore(100);
-            rb.linearVelocityY = 0;
-            rb.AddForceY(boostForce);
-            DestroyBooser();
+            else
+            {
+                Debug.LogWarning("Pinball has no Rigidbody2D!");
+            }
         }
     }
 
