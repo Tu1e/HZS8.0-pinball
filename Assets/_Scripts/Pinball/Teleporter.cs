@@ -130,6 +130,8 @@ public class Teleporter : MonoBehaviour
                     // Effect na izlazu (destinacija)
                     Instantiate(teleportEffect, targetPosition, Quaternion.identity);
                 }
+
+                ScoreManager.Instance.AddScore(50);
             }
             else
             {

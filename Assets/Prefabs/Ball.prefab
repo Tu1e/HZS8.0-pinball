@@ -169,3 +169,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Ball
   maxSpeed: 16
+  timer: 2
+  collider: {fileID: 5774392982750896813}
